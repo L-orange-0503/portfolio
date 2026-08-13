@@ -1,0 +1,5 @@
+reports/
+.preflight-backups/
+tmp/
+node_modules/
+.DS_Store
