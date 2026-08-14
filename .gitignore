@@ -3,3 +3,5 @@ reports/
 tmp/
 node_modules/
 .DS_Store
+test_preview.cjs
+.pages-artifact/

@@ -19,9 +19,11 @@ const projects = [
   ['18','多主题门户设计探索','VISUAL SYSTEM','1.jpg'],
   ['19','智慧教育服务门户','SMART PORTAL','设计图.jpg']
 ];
-const asset = name => `/public/assets/${encodeURIComponent(name)}`;
+const asset = name => `./public/assets/${encodeURIComponent(name)}`;
+const responsiveAsset = (id, width) => `./public/assets/responsive/${id}-${width}.jpg`;
+const responsiveWorkImage = (project, alt, sizes) => `<img loading="lazy" decoding="async" fetchpriority="low" src="${responsiveAsset(project[0], 960)}" srcset="${responsiveAsset(project[0], 480)} 480w, ${responsiveAsset(project[0], 960)} 960w" sizes="${sizes}" alt="${alt}">`;
 const jump = id => document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
-const marquee = ([...projects,...projects,...projects]).map((p,i)=>`<figure class="marquee-tile"><img loading="lazy" decoding="async" fetchpriority="low" src="${asset(p[3])}" alt="${p[1]}界面局部 ${i+1}"></figure>`).join('');
+const marquee = ([...projects,...projects,...projects]).map((p,i)=>`<figure class="marquee-tile">${responsiveWorkImage(p, `${p[1]}界面局部 ${i+1}`, '(max-width: 700px) 230px, 420px')}</figure>`).join('');
 const services = [
   ['01','体验策略与信息架构','梳理复杂角色、服务入口与信息层级，让门户系统拥有清晰、可理解的使用路径。'],
   ['02','智慧门户与业务体验','面向教育数字化场景，完成门户、资源、图书馆与管理服务的端到端界面设计。'],
@@ -31,7 +33,7 @@ const services = [
 ];
 const selected = [
   [['01','山东财经大学AI财未来学习中心','SHANDONG UNIVERSITY OF FINANCE AND ECONOMICS · AI FUTURE LEARNING CENTER','1920w default · 变量规范化版.jpg'], 'https://51sdred9.mh.chaoxing.com/'],
-  [['02','成都工贸职业技术学院未来学习中心','CHENGDU VOCATIONAL & TECHNICAL COLLEGE OF INDUSTRY · FUTURE LEARNING CENTER','第二屏.jpg'], 'https://gmzy.pages.dev/'],
+  [['02','成都工贸职业技术学院未来学习中心','CHENGDU VOCATIONAL & TECHNICAL COLLEGE OF INDUSTRY · FUTURE LEARNING CENTER','第二屏.jpg'], 'https://ficp.fun/s/zDAdUa'],
   [['03','天津师范大学树人学堂','TIANJIN NORMAL UNIVERSITY · SHUREN ACADEMY','电子科技大学图书馆.jpg'], 'https://53i91uz6.mh.chaoxing.com/']
 ];
 const projectTypeZh = {
@@ -96,12 +98,12 @@ const indexProjects = projects
     image
   ]);
 const projectCard = ([p, iframeUrl]) => `<article class="project-shell reveal"><div class="project-card"><header class="project-meta"><div class="project-number">${p[0]}</div><div><p class="project-type">${p[2]}</p><h3 class="project-name">${p[1]}</h3></div><button class="ghost-button" data-jump="all-projects">查看全部项目 ↗</button></header><div class="project-media"><div class="iframe-frame" data-iframe-project="${p[0]}"><div class="iframe-scaler"><iframe title="${p[1]} 交互预览" data-src="${iframeUrl}" loading="lazy" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="iframe-placeholder" aria-hidden="true"><span>交互预览</span><strong>${p[1]}</strong><small>正在载入交互预览</small></div></div></div></div></article>`;
-const indexCards = indexProjects.map((p,index)=>`<button class="work-card" data-gallery-index="${index}" aria-label="预览 ${p[1]}"><img loading="lazy" decoding="async" fetchpriority="low" src="${asset(p[3])}" alt="${p[1]}界面预览"><span class="work-copy"><span>${p[0]} / ${p[1]}</span><small>${p[2]}</small></span></button>`).join('');
+const indexCards = indexProjects.map((p,index)=>`<button class="work-card" data-gallery-index="${index}" aria-label="预览 ${p[1]}">${responsiveWorkImage(p, `${p[1]}界面预览`, '(max-width: 700px) 50vw, 440px')}<span class="work-copy"><span>${p[0]} / ${p[1]}</span><small>${p[2]}</small></span></button>`).join('');
 const characters = text => [...text].map(ch=>`<span class="reveal-char">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
 document.querySelector('#app').innerHTML = `
   <div class="page">
     <nav class="nav" aria-label="主导航"><button class="brand" data-jump="top"><b>LSJ</b> — PORTFOLIO</button><div class="nav-links"><button data-jump="about">About</button><button data-jump="expertise">Expertise</button><button data-jump="all-projects">Projects</button><button class="contact-link" data-jump="contact">Contact</button></div></nav>
-    <section class="hero ether-zone" id="top"><div class="hero-portrait" aria-hidden="true"></div><div class="hero-title-wrap"><h1 class="hero-title hero-heading">Hi, i&apos;m <span class="cn">李世杰</span></h1></div><div class="hero-deck"><p class="hero-note">UI / UX DESIGNER<br>DESIGNING CLEARER DIGITAL SERVICES</p><button class="contact-orb" data-jump="contact"><span>Contact<br>me ↗</span></button></div></section>
+    <section class="hero ether-zone" id="top"><div class="hero-portrait" aria-hidden="true"></div><div class="hero-title-wrap"><h1 class="hero-title hero-heading"><span class="hero-title-row"><span class="hero-title-text hero-title-intro" aria-label="HI, I&apos;M"><span class="hero-char" aria-hidden="true">H</span><span class="hero-char" aria-hidden="true">I</span><span class="hero-char" aria-hidden="true">,</span><span class="hero-char hero-space" aria-hidden="true">&nbsp;</span><span class="hero-char" aria-hidden="true">I</span><span class="hero-char" aria-hidden="true">&apos;</span><span class="hero-char" aria-hidden="true">M</span></span></span><span class="hero-title-row"><span class="hero-title-text hero-title-name cn" aria-label="李世杰"><span class="hero-char" aria-hidden="true">李</span><span class="hero-char" aria-hidden="true">世</span><span class="hero-char" aria-hidden="true">杰</span></span></span></h1></div><div class="hero-deck"><p class="hero-note">UI / UX DESIGNER<br>DESIGNING CLEARER DIGITAL SERVICES</p><button class="contact-orb" data-jump="contact"><span>Contact<br>me ↗</span></button></div></section>
     <section class="ticker ether-zone" aria-label="专业领域"><div class="ticker-track"><span>SMART PORTAL</span><i>✦</i><span>EDUCATION DIGITALIZATION</span><i>✦</i><span>DESIGN SYSTEM</span><i>✦</i><span>AI-ENABLED WORKFLOW</span><i>✦</i><span>SMART PORTAL</span><i>✦</i><span>EDUCATION DIGITALIZATION</span><i>✦</i><span>DESIGN SYSTEM</span><i>✦</i><span>AI-ENABLED WORKFLOW</span><i>✦</i></div></section>
     <section class="mosaic ether-zone" aria-label="作品流"><div class="mosaic-label"><span>19 PROJECTS / A SELECTED VISUAL STREAM</span><span>SCROLL TO EXPLORE</span></div><div class="marquee-row" data-marquee="right">${marquee}</div><div class="marquee-row reverse" data-marquee="left">${marquee}</div></section>
     <section class="about ether-zone" id="about"><div class="orbital one">SYSTEM</div><div class="orbital two">DETAIL</div><div class="orbital three">FLOW</div><div class="about-center"><h2 class="section-title hero-heading">About <span class="cn">我</span></h2><p class="about-copy" data-char-reveal>${characters('8 年 UI / UX 设计经验，6 年深耕超星集团教育数字化业务。参与智慧门户 1.0、2.0 的产品设计与持续迭代，累计支持 600+ 高校门户项目落地。拥有 3 年团队管理经验，我相信好的体验不是装饰，而是让复杂服务被轻松理解和稳定使用的系统。')}</p><button class="contact-orb" data-jump="contact"><span>Work<br>with me ↗</span></button></div></section>
@@ -111,6 +113,37 @@ document.querySelector('#app').innerHTML = `
     <footer class="footer ether-zone" id="contact"><div class="footer-top"><div><p class="section-kicker">LET&apos;S MAKE COMPLEXITY CLEAR</p><h2 class="hero-heading">LET&apos;S<br><span class="cn">合作。</span></h2></div><a class="contact-orb" href="mailto:hello@example.com"><span>Email<br>me ↗</span></a></div><div class="footer-bottom"><span>© 2026 LI SHIJIE</span><span>UI / UX DESIGNER · SHANGHAI, CHINA</span></div></footer>
     <div class="lightbox" id="lightbox" aria-hidden="true"><button class="lightbox-backdrop" data-lightbox-close aria-label="关闭预览"></button><section class="lightbox-panel" role="dialog" aria-modal="true" aria-label="项目长图预览" tabindex="-1"><header><div><p id="lightbox-type"></p><h2 id="lightbox-title"></h2></div><button class="icon-button" data-lightbox-close aria-label="关闭预览">×</button></header><div class="lightbox-stage"><img id="lightbox-image" alt=""></div><footer><button class="icon-button" data-zoom="out" aria-label="缩小">−</button><span id="zoom-value">100%</span><button class="icon-button" data-zoom="in" aria-label="放大">＋</button><div class="lightbox-spacer"></div><button class="icon-button" data-gallery="prev" aria-label="上一张">←</button><span id="gallery-count"></span><button class="icon-button" data-gallery="next" aria-label="下一张">→</button></footer></section></div>
   </div>`;
+const initGsapEntrances = () => {
+  if (!window.gsap) return;
+  const motion = window.gsap.matchMedia();
+  motion.add('(prefers-reduced-motion: no-preference)', () => {
+    const navItems = [...document.querySelectorAll('.brand, .nav-links button')];
+    const portrait = document.querySelector('.hero-portrait');
+    const intro = document.querySelector('.hero-title-intro');
+    const name = document.querySelector('.hero-title-name');
+    const note = document.querySelector('.hero-note');
+    const heroOrb = document.querySelector('.hero .contact-orb');
+    const tl = window.gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    window.gsap.set(navItems, { autoAlpha: 0, y: -14 });
+    window.gsap.set(intro, { autoAlpha: 0, y: 28, filter: 'blur(3px)' });
+    window.gsap.set(name, { autoAlpha: 0, y: 22, filter: 'blur(3px)' });
+
+    tl.addLabel('wake', .06)
+      .to(navItems, { autoAlpha: 1, y: 0, duration: .48, stagger: .055, clearProps: 'transform,opacity,visibility' }, 'wake')
+      .fromTo(portrait, { x: -16, scale: 1.025 }, { x: 0, scale: 1, duration: 1.05, ease: 'power3.inOut', clearProps: 'transform' }, 'wake+=.06')
+      .addLabel('identity', 'wake+=.28')
+      .to(intro, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .68, ease: 'power4.out', clearProps: 'transform,filter,opacity,visibility' }, 'identity')
+      .to(name, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .74, ease: 'power4.out', clearProps: 'transform,filter,opacity,visibility' }, 'identity+=.42')
+      .fromTo(note, { y: 18 }, { y: 0, duration: .52, clearProps: 'transform' }, 'identity+=.92')
+      .fromTo(heroOrb, { y: 16, scale: .92 }, { y: 0, scale: 1, duration: .58, clearProps: 'transform' }, 'identity+=1.02');
+
+    return () => {
+      tl.kill();
+    };
+  });
+};
+initGsapEntrances();
 document.querySelectorAll('[data-jump]').forEach(el=>el.addEventListener('click',()=>jump(el.dataset.jump)));
 const lightbox = document.querySelector('#lightbox');
 const lightboxPanel = lightbox.querySelector('.lightbox-panel');
@@ -141,6 +174,8 @@ class LiquidEtherBackground {
     this.canvas.className = 'ether-canvas';
     this.canvas.setAttribute('aria-hidden', 'true');
     zone.prepend(this.canvas);
+    this.canvas.width = 1;
+    this.canvas.height = 1;
     this.ctx = this.canvas.getContext('2d', { alpha: true });
     this.pointer = { x: .5, y: .5, px: .5, py: .5, active: false, last: 0 };
     this.visible = false;
@@ -148,6 +183,8 @@ class LiquidEtherBackground {
     this.lastFrame = 0;
     this.raf = 0;
     this.timer = 0;
+    this.releaseTimer = 0;
+    this.allocated = false;
     this.viewportBounded = zone.id === 'selected-projects';
     this.phase = Math.random() * Math.PI * 2;
     this.resize = this.resize.bind(this);
@@ -170,6 +207,9 @@ class LiquidEtherBackground {
     this.width = Math.max(1, Math.round(rect.width));
     this.height = Math.max(1, Math.round(rect.height));
     this.renderHeight = this.viewportBounded ? Math.min(this.height, Math.ceil(window.innerHeight + 160)) : this.height;
+    if (this.allocated) this.resizeBuffer();
+  }
+  resizeBuffer() {
     const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.renderHeight * ratio);
@@ -178,6 +218,18 @@ class LiquidEtherBackground {
     this.canvas.style.bottom = 'auto';
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     this.ctx.clearRect(0, 0, this.width, this.height);
+  }
+  ensureBuffer() {
+    clearTimeout(this.releaseTimer);
+    if (this.allocated) return;
+    this.allocated = true;
+    this.resizeBuffer();
+  }
+  releaseBuffer() {
+    if (this.visible && !document.hidden) return;
+    this.canvas.width = 1;
+    this.canvas.height = 1;
+    this.allocated = false;
   }
   onPointerMove(event) {
     const rect = this.zone.getBoundingClientRect();
@@ -188,6 +240,7 @@ class LiquidEtherBackground {
   }
   start() {
     if (this.raf || this.timer || !this.visible || this.reduced || document.hidden) return;
+    this.ensureBuffer();
     this.lastFrame = 0;
     this.schedule(0);
   }
@@ -196,6 +249,8 @@ class LiquidEtherBackground {
     cancelAnimationFrame(this.raf);
     this.raf = 0;
     this.timer = 0;
+    clearTimeout(this.releaseTimer);
+    this.releaseTimer = window.setTimeout(() => this.releaseBuffer(), 1600);
   }
   schedule(delay) {
     this.timer = window.setTimeout(() => {
@@ -271,6 +326,8 @@ class GradientWavesBackground {
     this.canvas.className = 'waves-canvas';
     this.canvas.setAttribute('aria-hidden', 'true');
     zone.prepend(this.canvas);
+    this.canvas.width = 1;
+    this.canvas.height = 1;
     this.ctx = this.canvas.getContext('2d', { alpha: true });
     this.pointer = { x: .5, y: .5, tx: .5, ty: .5 };
     this.visible = false;
@@ -279,6 +336,8 @@ class GradientWavesBackground {
     this.lastFrame = 0;
     this.raf = 0;
     this.timer = 0;
+    this.releaseTimer = 0;
+    this.allocated = false;
     this.viewportBounded = zone.id === 'selected-projects';
     this.resize = this.resize.bind(this);
     this.tick = this.tick.bind(this);
@@ -304,6 +363,9 @@ class GradientWavesBackground {
     this.width = Math.max(1, Math.round(rect.width));
     this.height = Math.max(1, Math.round(rect.height));
     this.renderHeight = this.viewportBounded ? Math.min(this.height, Math.ceil(window.innerHeight + 160)) : this.height;
+    if (this.allocated) this.resizeBuffer();
+  }
+  resizeBuffer() {
     const ratio = Math.min(window.devicePixelRatio || 1, 1.25);
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.renderHeight * ratio);
@@ -312,8 +374,21 @@ class GradientWavesBackground {
     this.canvas.style.bottom = 'auto';
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
+  ensureBuffer() {
+    clearTimeout(this.releaseTimer);
+    if (this.allocated) return;
+    this.allocated = true;
+    this.resizeBuffer();
+  }
+  releaseBuffer() {
+    if (this.visible && !document.hidden) return;
+    this.canvas.width = 1;
+    this.canvas.height = 1;
+    this.allocated = false;
+  }
   start() {
     if (this.raf || this.timer || !this.visible || this.reduced || document.hidden) return;
+    this.ensureBuffer();
     this.lastFrame = 0;
     this.schedule(0);
   }
@@ -322,6 +397,8 @@ class GradientWavesBackground {
     cancelAnimationFrame(this.raf);
     this.raf = 0;
     this.timer = 0;
+    clearTimeout(this.releaseTimer);
+    this.releaseTimer = window.setTimeout(() => this.releaseBuffer(), 1600);
   }
   schedule(delay) {
     this.timer = window.setTimeout(() => {
@@ -425,6 +502,10 @@ const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isInte
 revealed.forEach(el=>observer.observe(el));
 const aboutCopy=document.querySelector('[data-char-reveal]');
 new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)aboutCopy.classList.add('is-readable')}),{threshold:.32}).observe(aboutCopy);
+const aboutSection = document.querySelector('#about');
+new IntersectionObserver(entries=>entries.forEach(entry=>{
+  aboutSection.classList.toggle('is-in-view', entry.isIntersecting);
+}), { threshold: .08 }).observe(aboutSection);
 if (!reduce) {
   const rows = [...document.querySelectorAll('[data-marquee]')];
   let ticking = false;
