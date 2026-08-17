@@ -102,8 +102,7 @@ const indexCards = indexProjects.map((p,index)=>`<button class="work-card" data-
 const characters = text => [...text].map(ch=>`<span class="reveal-char">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
 document.querySelector('#app').innerHTML = `
   <div class="page">
-    <nav class="nav" aria-label="主导航"><button class="brand" data-jump="top"><b>LSJ</b> — PORTFOLIO</button><div class="nav-links"><button data-jump="about">About</button><button data-jump="expertise">Expertise</button><button data-jump="all-projects">Projects</button><button class="contact-link" data-jump="contact">Contact</button></div></nav>
-    <section class="hero ether-zone" id="top"><div class="hero-portrait" aria-hidden="true"></div><div class="hero-title-wrap"><h1 class="hero-title hero-heading"><span class="hero-title-row"><span class="hero-title-text hero-title-intro" aria-label="HI, I&apos;M"><span class="hero-char" aria-hidden="true">H</span><span class="hero-char" aria-hidden="true">I</span><span class="hero-char" aria-hidden="true">,</span><span class="hero-char hero-space" aria-hidden="true">&nbsp;</span><span class="hero-char" aria-hidden="true">I</span><span class="hero-char" aria-hidden="true">&apos;</span><span class="hero-char" aria-hidden="true">M</span></span></span><span class="hero-title-row"><span class="hero-title-text hero-title-name cn" aria-label="李世杰"><span class="hero-char" aria-hidden="true">李</span><span class="hero-char" aria-hidden="true">世</span><span class="hero-char" aria-hidden="true">杰</span></span></span></h1></div><div class="hero-deck"><p class="hero-note">UI / UX DESIGNER<br>DESIGNING CLEARER DIGITAL SERVICES</p><button class="contact-orb" data-jump="contact"><span>Contact<br>me ↗</span></button></div></section>
+    <section class="hero hero--video" id="top"><video class="hero-video" autoplay loop muted playsinline preload="auto" aria-hidden="true"><source src="./public/home-office.webm" type="video/webm"></video><div class="hero-video-overlay" aria-hidden="true"></div><canvas class="hero-splash-cursor" aria-hidden="true"></canvas><h1 class="video-hero-title"><span class="video-hero-line video-hero-line--intro"><span>Hi，IM 李世杰</span></span><span class="video-hero-line video-hero-line--main"><span>近期工作作品集</span></span></h1></section>
     <section class="ticker ether-zone" aria-label="专业领域"><div class="ticker-track"><span>SMART PORTAL</span><i>✦</i><span>EDUCATION DIGITALIZATION</span><i>✦</i><span>DESIGN SYSTEM</span><i>✦</i><span>AI-ENABLED WORKFLOW</span><i>✦</i><span>SMART PORTAL</span><i>✦</i><span>EDUCATION DIGITALIZATION</span><i>✦</i><span>DESIGN SYSTEM</span><i>✦</i><span>AI-ENABLED WORKFLOW</span><i>✦</i></div></section>
     <section class="mosaic ether-zone" aria-label="作品流"><div class="mosaic-label"><span>19 PROJECTS / A SELECTED VISUAL STREAM</span><span>SCROLL TO EXPLORE</span></div><div class="marquee-row" data-marquee="right">${marquee}</div><div class="marquee-row reverse" data-marquee="left">${marquee}</div></section>
     <section class="about ether-zone" id="about"><div class="orbital one">SYSTEM</div><div class="orbital two">DETAIL</div><div class="orbital three">FLOW</div><div class="about-center"><h2 class="section-title hero-heading">About <span class="cn">我</span></h2><p class="about-copy" data-char-reveal>${characters('8 年 UI / UX 设计经验，6 年深耕超星集团教育数字化业务。参与智慧门户 1.0、2.0 的产品设计与持续迭代，累计支持 600+ 高校门户项目落地。拥有 3 年团队管理经验，我相信好的体验不是装饰，而是让复杂服务被轻松理解和稳定使用的系统。')}</p><button class="contact-orb" data-jump="contact"><span>Work<br>with me ↗</span></button></div></section>
@@ -113,10 +112,145 @@ document.querySelector('#app').innerHTML = `
     <footer class="footer ether-zone" id="contact"><div class="footer-top"><div><p class="section-kicker">LET&apos;S MAKE COMPLEXITY CLEAR</p><h2 class="hero-heading">LET&apos;S<br><span class="cn">合作。</span></h2></div><a class="contact-orb" href="mailto:hello@example.com"><span>Email<br>me ↗</span></a></div><div class="footer-bottom"><span>© 2026 LI SHIJIE</span><span>UI / UX DESIGNER · SHANGHAI, CHINA</span></div></footer>
     <div class="lightbox" id="lightbox" aria-hidden="true"><button class="lightbox-backdrop" data-lightbox-close aria-label="关闭预览"></button><section class="lightbox-panel" role="dialog" aria-modal="true" aria-label="项目长图预览" tabindex="-1"><header><div><p id="lightbox-type"></p><h2 id="lightbox-title"></h2></div><button class="icon-button" data-lightbox-close aria-label="关闭预览">×</button></header><div class="lightbox-stage"><img id="lightbox-image" alt=""></div><footer><button class="icon-button" data-zoom="out" aria-label="缩小">−</button><span id="zoom-value">100%</span><button class="icon-button" data-zoom="in" aria-label="放大">＋</button><div class="lightbox-spacer"></div><button class="icon-button" data-gallery="prev" aria-label="上一张">←</button><span id="gallery-count"></span><button class="icon-button" data-gallery="next" aria-label="下一张">→</button></footer></section></div>
   </div>`;
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const echoVectors = { right: { x: 1, y: 0 }, left: { x: -1, y: 0 }, up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, diagonal: { x: .72, y: .72 } };
+const createHeroEcho = (root, options = {}) => {
+  const text = root.textContent.trim();
+  const settings = { echoes: 6, lag: .08, offset: 20, direction: 'right', fade: .62, blur: 2.2, tint: '#7dd3fc', duration: 680, ...options };
+  const vector = echoVectors[settings.direction] || echoVectors.right;
+  const copies = [];
+  const pointerGhosts = new Set();
+  let frame = 0;
+  let active = false;
+  let settled = false;
+  let lastPointer = null;
+  let lastTrailAt = 0;
+  const state = { positions: [], startTime: 0 };
+  root.textContent = '';
+  for (let index = settings.echoes; index > 0; index -= 1) {
+    const copy = document.createElement('span');
+    copy.className = 'echo-text__echo';
+    copy.dataset.echoIndex = index;
+    copy.setAttribute('aria-hidden', 'true');
+    copy.textContent = text;
+    copy.style.color = `color-mix(in srgb, ${settings.tint} ${Math.min(72, 18 + index * 5)}%, #f8fafc)`;
+    copy.style.webkitTextFillColor = copy.style.color;
+    root.append(copy);
+    copies[index] = copy;
+  }
+  const front = document.createElement('span');
+  front.className = 'echo-text__echo echo-text__echo--front';
+  front.dataset.echoIndex = '0';
+  front.textContent = text;
+  root.append(front);
+  copies[0] = front;
+
+  const setStartingPositions = () => {
+    state.positions = Array.from({ length: settings.echoes + 1 }, (_, index) => ({ x: vector.x * settings.offset * (index + .35), y: vector.y * settings.offset * (index + .35) }));
+    state.positions.forEach((position, index) => {
+      const copy = copies[index];
+      if (!copy) return;
+      copy.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
+      if (index > 0) copy.style.opacity = '0';
+    });
+  };
+  const requestFrame = () => { if (!frame && active && !document.hidden) frame = requestAnimationFrame(renderFrame); };
+  const removeEntranceCopies = () => {
+    for (let index = 1; index <= settings.echoes; index += 1) copies[index]?.remove();
+    copies.length = 1;
+    front.style.transform = '';
+    front.style.filter = '';
+    settled = true;
+  };
+  const renderFrame = now => {
+    frame = 0;
+    const progress = clamp((now - state.startTime) / settings.duration, 0, 1);
+    const entranceRest = 1 - (1 - Math.pow(1 - progress, 3));
+    let motionLeft = progress < 1;
+    let maxSeparation = 0;
+    for (let index = 0; index <= settings.echoes; index += 1) {
+      const copy = copies[index];
+      const current = state.positions[index];
+      if (!copy || !current) continue;
+      const desiredX = vector.x * entranceRest * settings.offset * (index + .35);
+      const desiredY = vector.y * entranceRest * settings.offset * (index + .35);
+      const lerp = clamp(.34 / (1 + index * settings.lag * 4.2), .018, .36);
+      const distance = Math.hypot(desiredX - current.x, desiredY - current.y);
+      current.x += (desiredX - current.x) * lerp;
+      current.y += (desiredY - current.y) * lerp;
+      motionLeft ||= distance > .08;
+      copy.style.transform = `translate3d(${current.x.toFixed(3)}px, ${current.y.toFixed(3)}px, 0)`;
+      if (index > 0) {
+        const separation = Math.hypot(current.x - state.positions[0].x, current.y - state.positions[0].y);
+        maxSeparation = Math.max(maxSeparation, separation);
+        copy.style.filter = `blur(${(settings.blur * index / settings.echoes).toFixed(2)}px)`;
+      }
+    }
+    const activity = clamp(Math.max(entranceRest, maxSeparation / (settings.offset * 2.25)), 0, 1);
+    for (let index = 1; index <= settings.echoes; index += 1) copies[index].style.opacity = String(Math.pow(settings.fade, index) * activity);
+    if (motionLeft || maxSeparation > .45) requestFrame();
+    else removeEntranceCopies();
+  };
+  const clearPointerGhosts = () => {
+    pointerGhosts.forEach(ghost => ghost.remove());
+    pointerGhosts.clear();
+  };
+  const onPointerMove = event => {
+    if (!settled) return;
+    const rect = root.getBoundingClientRect();
+    const nearestX = clamp(event.clientX, rect.left, rect.right);
+    const nearestY = clamp(event.clientY, rect.top, rect.bottom);
+    if (Math.hypot(event.clientX - nearestX, event.clientY - nearestY) > 170) { lastPointer = null; return; }
+    const now = performance.now();
+    const nextPointer = { x: event.clientX, y: event.clientY };
+    if (!lastPointer || now - lastTrailAt < 56) { lastPointer = nextPointer; return; }
+    const dx = nextPointer.x - lastPointer.x;
+    const dy = nextPointer.y - lastPointer.y;
+    lastPointer = nextPointer;
+    if (Math.hypot(dx, dy) < 2) return;
+    const ghost = front.cloneNode(true);
+    ghost.className = 'echo-text__echo echo-text__pointer-ghost';
+    ghost.removeAttribute('data-echo-index');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.style.color = `color-mix(in srgb, ${settings.tint} 64%, #f8fafc)`;
+    ghost.style.webkitTextFillColor = ghost.style.color;
+    root.append(ghost);
+    pointerGhosts.add(ghost);
+    if (pointerGhosts.size > 3) pointerGhosts.values().next().value.remove();
+    const animation = ghost.animate([
+      { transform: `translate3d(${clamp(-dx * .48, -20, 20)}px, ${clamp(-dy * .22, -8, 8)}px, 0)`, opacity: .32, filter: 'blur(1.4px)' },
+      { transform: `translate3d(${clamp(-dx * .1, -5, 5)}px, 0, 0)`, opacity: 0, filter: 'blur(.4px)' }
+    ], { duration: 240, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
+    animation.finished.catch(() => {}).finally(() => { ghost.remove(); pointerGhosts.delete(ghost); });
+    lastTrailAt = now;
+  };
+  const hero = root.closest('.hero--video');
+  hero?.addEventListener('pointermove', onPointerMove, { passive: true });
+  setStartingPositions();
+  return {
+    play: () => { active = true; settled = false; state.startTime = performance.now(); setStartingPositions(); requestFrame(); },
+    destroy: () => { active = false; if (frame) cancelAnimationFrame(frame); hero?.removeEventListener('pointermove', onPointerMove); clearPointerGhosts(); root.textContent = text; }
+  };
+};
 const initGsapEntrances = () => {
   if (!window.gsap) return;
   const motion = window.gsap.matchMedia();
   motion.add('(prefers-reduced-motion: no-preference)', () => {
+    const videoHero = document.querySelector('.hero--video');
+    if (videoHero) {
+      const intro = videoHero.querySelector('.video-hero-line--intro > span');
+      const name = videoHero.querySelector('.video-hero-line--main > span');
+      const tl = window.gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.addLabel('identity', .28)
+        .fromTo(intro, { autoAlpha: 0, y: 24, filter: 'blur(3px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .68, ease: 'power4.out', clearProps: 'transform,filter,opacity,visibility' }, 'identity')
+        .fromTo(name, { autoAlpha: 0, y: 20, filter: 'blur(3px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .72, ease: 'power4.out', clearProps: 'transform,filter,opacity,visibility' }, 'identity+=.42');
+
+      return () => {
+        tl.kill();
+      };
+    }
+
     const navItems = [...document.querySelectorAll('.brand, .nav-links button')];
     const portrait = document.querySelector('.hero-portrait');
     const intro = document.querySelector('.hero-title-intro');
@@ -144,6 +278,114 @@ const initGsapEntrances = () => {
   });
 };
 initGsapEntrances();
+const initHeroSplashCursor = () => {
+  const hero = document.querySelector('.hero--video');
+  const canvas = hero?.querySelector('.hero-splash-cursor');
+  const supportsFinePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (!hero || !canvas || matchMedia('(prefers-reduced-motion: reduce)').matches || !supportsFinePointer) return;
+  const context = canvas.getContext('2d', { alpha: true });
+  if (!context) return;
+  const config = { COLOR: [80, 129, 255], DENSITY_DISSIPATION: 3.5, VELOCITY_DISSIPATION: 2, SPLAT_RADIUS: .2, SPLAT_FORCE: 6000 };
+  const particles = [];
+  const pointer = { x: 0, y: 0, lastX: 0, lastY: 0, initialized: false };
+  let width = 1;
+  let height = 1;
+  let frame = 0;
+  let lastTime = 0;
+  let inView = true;
+  const resize = () => {
+    const rect = hero.getBoundingClientRect();
+    const ratio = Math.min(devicePixelRatio || 1, 1.5);
+    width = Math.max(1, rect.width);
+    height = Math.max(1, rect.height);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  };
+  const requestFrame = () => { if (!frame && inView && !document.hidden) frame = requestAnimationFrame(draw); };
+  const addSplat = (x, y, dx, dy, strength = 1) => {
+    const speed = Math.min(Math.hypot(dx, dy), 42) * strength;
+    const amount = Math.max(2, Math.min(7, Math.ceil(speed / 7)));
+    for (let index = 0; index < amount; index += 1) {
+      const phase = Math.random() * Math.PI * 2;
+      const spread = (Math.random() - .5) * 1.8;
+      particles.push({
+        x: x + (Math.random() - .5) * 10,
+        y: y + (Math.random() - .5) * 10,
+        vx: dx * (.16 + Math.random() * .08) + Math.cos(phase) * (2 + speed * .07),
+        vy: dy * (.16 + Math.random() * .08) + Math.sin(phase) * (2 + speed * .07),
+        radius: 12 + speed * .42 + Math.random() * 12,
+        life: 500 + Math.random() * 500,
+        age: 0,
+        angle: Math.atan2(dy || spread, dx || 1) + spread,
+        spin: (Math.random() - .5) * .08
+      });
+    }
+    if (particles.length > 90) particles.splice(0, particles.length - 90);
+    requestFrame();
+  };
+  const draw = time => {
+    frame = 0;
+    const delta = Math.min(32, time - (lastTime || time));
+    lastTime = time;
+    context.clearRect(0, 0, width, height);
+    context.globalCompositeOperation = 'screen';
+    for (let index = particles.length - 1; index >= 0; index -= 1) {
+      const particle = particles[index];
+      particle.age += delta;
+      if (particle.age >= particle.life) { particles.splice(index, 1); continue; }
+      const progress = particle.age / particle.life;
+      particle.vx *= Math.exp(-config.VELOCITY_DISSIPATION * delta / 1000);
+      particle.vy *= Math.exp(-config.VELOCITY_DISSIPATION * delta / 1000);
+      particle.x += particle.vx * delta / 16;
+      particle.y += particle.vy * delta / 16;
+      particle.angle += particle.spin * delta / 16;
+      const alpha = Math.pow(1 - progress, config.DENSITY_DISSIPATION / 2) * .36;
+      const radius = particle.radius * (1 + progress * .82);
+      const gradient = context.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, radius);
+      gradient.addColorStop(0, `rgb(${config.COLOR.join(' ')} / ${alpha})`);
+      gradient.addColorStop(.42, `rgb(${config.COLOR.join(' ')} / ${alpha * .4})`);
+      gradient.addColorStop(1, 'rgb(80 129 255 / 0)');
+      context.save();
+      context.translate(particle.x, particle.y);
+      context.rotate(particle.angle);
+      context.scale(1.55, .72);
+      context.translate(-particle.x, -particle.y);
+      context.fillStyle = gradient;
+      context.beginPath();
+      context.arc(particle.x, particle.y, radius, 0, Math.PI * 2);
+      context.fill();
+      context.restore();
+    }
+    context.globalCompositeOperation = 'source-over';
+    if (particles.length) requestFrame();
+  };
+  const onPointerMove = event => {
+    const rect = hero.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    if (!pointer.initialized) { Object.assign(pointer, { x, y, lastX: x, lastY: y, initialized: true }); return; }
+    const dx = x - pointer.lastX;
+    const dy = y - pointer.lastY;
+    if (Math.hypot(dx, dy) > .5) addSplat(x, y, dx, dy);
+    Object.assign(pointer, { x, y, lastX: x, lastY: y });
+  };
+  const onPointerDown = event => {
+    const rect = hero.getBoundingClientRect();
+    addSplat(event.clientX - rect.left, event.clientY - rect.top, (Math.random() - .5) * 18, (Math.random() - .5) * 18, 2.2);
+  };
+  const onLeave = () => { pointer.initialized = false; };
+  const observer = new IntersectionObserver(entries => { inView = entries[0].isIntersecting; if (!inView) { particles.length = 0; context.clearRect(0, 0, width, height); } }, { threshold: .01 });
+  const visibility = () => { if (document.hidden && frame) { cancelAnimationFrame(frame); frame = 0; } else requestFrame(); };
+  new ResizeObserver(resize).observe(hero);
+  observer.observe(hero);
+  hero.addEventListener('pointermove', onPointerMove, { passive: true });
+  hero.addEventListener('pointerdown', onPointerDown, { passive: true });
+  hero.addEventListener('pointerleave', onLeave, { passive: true });
+  document.addEventListener('visibilitychange', visibility, { passive: true });
+  resize();
+};
+initHeroSplashCursor();
 document.querySelectorAll('[data-jump]').forEach(el=>el.addEventListener('click',()=>jump(el.dataset.jump)));
 const lightbox = document.querySelector('#lightbox');
 const lightboxPanel = lightbox.querySelector('.lightbox-panel');
@@ -506,6 +748,35 @@ const aboutSection = document.querySelector('#about');
 new IntersectionObserver(entries=>entries.forEach(entry=>{
   aboutSection.classList.toggle('is-in-view', entry.isIntersecting);
 }), { threshold: .08 }).observe(aboutSection);
+const initProjectStack = () => {
+  if (reduce || !window.gsap || !window.ScrollTrigger) return;
+
+  window.gsap.registerPlugin(window.ScrollTrigger);
+  const cards = window.gsap.utils.toArray('.project-card');
+
+  cards.forEach((card, index) => {
+    const shell = card.closest('.project-shell');
+    const targetScale = 1 - (cards.length - 1 - index) * .03;
+
+    window.gsap.fromTo(card, { scale: 1 }, {
+      scale: targetScale,
+      ease: 'none',
+      scrollTrigger: {
+        id: `project-stack-${index}`,
+        trigger: shell,
+        start: 'top bottom',
+        end: 'top top',
+        scrub: true,
+        invalidateOnRefresh: true
+      }
+    });
+  });
+
+  const refreshProjectStack = () => window.ScrollTrigger.refresh();
+  if (document.fonts?.ready) document.fonts.ready.then(refreshProjectStack);
+  addEventListener('load', refreshProjectStack, { once: true });
+};
+initProjectStack();
 if (!reduce) {
   const rows = [...document.querySelectorAll('[data-marquee]')];
   let ticking = false;
