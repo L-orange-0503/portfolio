@@ -102,7 +102,7 @@ const indexCards = indexProjects.map((p,index)=>`<button class="work-card" data-
 const characters = text => [...text].map(ch=>`<span class="reveal-char">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
 document.querySelector('#app').innerHTML = `
   <div class="page">
-    <section class="hero hero--video" id="top"><video class="hero-video" autoplay loop muted playsinline preload="auto" aria-hidden="true"><source src="./public/home-office.webm" type="video/webm"></video><div class="hero-video-overlay" aria-hidden="true"></div><canvas class="hero-splash-cursor" aria-hidden="true"></canvas><h1 class="video-hero-title"><span class="video-hero-line video-hero-line--intro"><span>Hi，IM 李世杰</span></span><span class="video-hero-line video-hero-line--main"><span>近期工作作品集</span></span></h1></section>
+    <section class="hero hero--video" id="top"><video class="hero-video" autoplay loop muted playsinline preload="auto" aria-hidden="true"><source src="./public/home-office.webm" type="video/webm"></video><div class="hero-video-overlay" aria-hidden="true"></div><canvas class="hero-splash-cursor" aria-hidden="true"></canvas><h1 class="video-hero-title"><span class="video-hero-line video-hero-line--intro"><span class="fold-text">Hi，IM 李世杰</span></span><span class="video-hero-line video-hero-line--main"><span class="fold-text">近期工作作品集</span></span></h1></section>
     <section class="ticker ether-zone" aria-label="专业领域"><div class="ticker-track"><span>SMART PORTAL</span><i>✦</i><span>EDUCATION DIGITALIZATION</span><i>✦</i><span>DESIGN SYSTEM</span><i>✦</i><span>AI-ENABLED WORKFLOW</span><i>✦</i><span>SMART PORTAL</span><i>✦</i><span>EDUCATION DIGITALIZATION</span><i>✦</i><span>DESIGN SYSTEM</span><i>✦</i><span>AI-ENABLED WORKFLOW</span><i>✦</i></div></section>
     <section class="mosaic ether-zone" aria-label="作品流"><div class="mosaic-label"><span>19 PROJECTS / A SELECTED VISUAL STREAM</span><span>SCROLL TO EXPLORE</span></div><div class="marquee-row" data-marquee="right">${marquee}</div><div class="marquee-row reverse" data-marquee="left">${marquee}</div></section>
     <section class="about ether-zone" id="about"><div class="orbital one">SYSTEM</div><div class="orbital two">DETAIL</div><div class="orbital three">FLOW</div><div class="about-center"><h2 class="section-title hero-heading">About <span class="cn">我</span></h2><p class="about-copy" data-char-reveal>${characters('8 年 UI / UX 设计经验，6 年深耕超星集团教育数字化业务。参与智慧门户 1.0、2.0 的产品设计与持续迭代，累计支持 600+ 高校门户项目落地。拥有 3 年团队管理经验，我相信好的体验不是装饰，而是让复杂服务被轻松理解和稳定使用的系统。')}</p><button class="contact-orb" data-jump="contact"><span>Work<br>with me ↗</span></button></div></section>
@@ -116,7 +116,7 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const echoVectors = { right: { x: 1, y: 0 }, left: { x: -1, y: 0 }, up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, diagonal: { x: .72, y: .72 } };
 const createHeroEcho = (root, options = {}) => {
   const text = root.textContent.trim();
-  const settings = { echoes: 6, lag: .08, offset: 20, direction: 'right', fade: .62, blur: 2.2, tint: '#7dd3fc', duration: 680, ...options };
+  const settings = { echoes: 4, lag: .06, offset: 14, direction: 'right', fade: .42, blur: 1.2, tint: '#7dd3fc', duration: 540, pointerTrail: false, ...options };
   const vector = echoVectors[settings.direction] || echoVectors.right;
   const copies = [];
   const pointerGhosts = new Set();
@@ -225,29 +225,94 @@ const createHeroEcho = (root, options = {}) => {
     lastTrailAt = now;
   };
   const hero = root.closest('.hero--video');
-  hero?.addEventListener('pointermove', onPointerMove, { passive: true });
+  if (settings.pointerTrail) hero?.addEventListener('pointermove', onPointerMove, { passive: true });
   setStartingPositions();
   return {
     play: () => { active = true; settled = false; state.startTime = performance.now(); setStartingPositions(); requestFrame(); },
-    destroy: () => { active = false; if (frame) cancelAnimationFrame(frame); hero?.removeEventListener('pointermove', onPointerMove); clearPointerGhosts(); root.textContent = text; }
+    destroy: () => { active = false; if (frame) cancelAnimationFrame(frame); if (settings.pointerTrail) hero?.removeEventListener('pointermove', onPointerMove); clearPointerGhosts(); root.textContent = text; }
+  };
+};
+const createHeroFoldText = root => {
+  const text = root.textContent;
+  const visual = document.createElement('span');
+  const pieces = [];
+  root.setAttribute('aria-label', text);
+  visual.className = 'fold-text-visual';
+  visual.setAttribute('aria-hidden', 'true');
+  root.textContent = '';
+  [...text].forEach(character => {
+    const piece = document.createElement('span');
+    piece.className = `fold-text-piece${character === ' ' ? ' fold-text-piece--space' : ''}`;
+    piece.dataset.foldHinge = 'top';
+    piece.textContent = character === ' ' ? '\u00a0' : character;
+    visual.append(piece);
+    pieces.push(piece);
+  });
+  root.append(visual);
+  return {
+    pieces,
+    restore: () => {
+      root.textContent = text;
+      root.removeAttribute('aria-label');
+    }
   };
 };
 const initGsapEntrances = () => {
-  if (!window.gsap) return;
+  const videoTitle = document.querySelector('.video-hero-title');
+  if (!window.gsap || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    videoTitle?.classList.add('is-fold-ready');
+    return;
+  }
   const motion = window.gsap.matchMedia();
   motion.add('(prefers-reduced-motion: no-preference)', () => {
     const videoHero = document.querySelector('.hero--video');
     if (videoHero) {
       const intro = videoHero.querySelector('.video-hero-line--intro > span');
       const name = videoHero.querySelector('.video-hero-line--main > span');
-      const tl = window.gsap.timeline({ defaults: { ease: 'power3.out' } });
+      const introFold = createHeroFoldText(intro);
+      const nameFold = createHeroFoldText(name);
+      const allPieces = [...introFold.pieces, ...nameFold.pieces];
+      const foldFrom = {
+        autoAlpha: 0,
+        clipPath: 'inset(0 0 100% 0)',
+        yPercent: -34,
+        rotationX: -84,
+        z: -18,
+        filter: 'blur(7px)',
+        transformOrigin: '50% 0%',
+        transformPerspective: 800,
+        force3D: true,
+        willChange: 'transform,opacity,filter,clip-path'
+      };
+      const foldTo = {
+        autoAlpha: 1,
+        clipPath: 'inset(0 0 0% 0)',
+        yPercent: 0,
+        rotationX: 0,
+        z: 0,
+        filter: 'blur(0px)',
+        duration: .66,
+        ease: 'power4.out',
+        stagger: .052
+      };
+      const finish = () => {
+        introFold.restore();
+        nameFold.restore();
+      };
+      const tl = window.gsap.timeline({ defaults: { ease: 'power4.out' } });
+      window.gsap.set(allPieces, foldFrom);
+      videoTitle.classList.add('is-fold-ready');
 
-      tl.addLabel('identity', .28)
-        .fromTo(intro, { autoAlpha: 0, y: 24, filter: 'blur(3px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .68, ease: 'power4.out', clearProps: 'transform,filter,opacity,visibility' }, 'identity')
-        .fromTo(name, { autoAlpha: 0, y: 20, filter: 'blur(3px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: .72, ease: 'power4.out', clearProps: 'transform,filter,opacity,visibility' }, 'identity+=.42');
+      tl.addLabel('identity', .24)
+        .to(introFold.pieces, foldTo, 'identity')
+        .addLabel('name', 'identity+=.76')
+        .to(nameFold.pieces, foldTo, 'name')
+        .call(finish)
+        .set(videoTitle, { clearProps: 'visibility' });
 
       return () => {
         tl.kill();
+        finish();
       };
     }
 
